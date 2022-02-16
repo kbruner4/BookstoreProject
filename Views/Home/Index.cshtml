@@ -1,0 +1,25 @@
+﻿@{
+}
+
+@model BooksViewModel
+<h1>Online Bookstore</h1>
+
+@*This will display each book in a list*@
+
+@foreach (Book b in Model.Books)
+            {
+                <h3>@b.Title</h3>
+                
+                <ul>
+                    <li>Author: @b.Author</li>
+                    <li>Publisher: @b.Publisher</li>
+                    <li>Isbn: @b.Isbn</li>
+                    <li>Classifcation: @b.Classification</li>
+                    <li>Category: @b.Category</li>
+                    <li>Number of Pages: @b.PageCount</li>
+                    <li>Price: @b.Price</li>
+                </ul>
+
+                <br />
+            }
+<div page-blah="@Model.PageInfo"  page-action="Index" page-info="btn-primary"></div>
