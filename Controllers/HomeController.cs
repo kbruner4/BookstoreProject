@@ -18,20 +18,24 @@ namespace BookstoreProject.Controllers
         }
         
         //This will help get the right amount of pages and books listed on those pages.
-        public IActionResult Index(int pageNum = 1)
+        public IActionResult Index(string projectType, int pageNum = 1)
         {
             int pageSize = 10;
 
             var x = new BooksViewModel
             {
                 Books = repo.Books
+                .Where(c => c.Category == projectType || projectType == null)
                 .OrderBy(b => b.Title)
                 .Skip((pageNum - 1) * pageSize)
                 .Take(pageSize),
 
                 PageInfo = new PageInfo
                 {
-                    TotalNumBooks = repo.Books.Count(),
+                    TotalNumBooks = 
+                    (projectType == null
+                    ? repo.Books.Count()
+                    : repo.Books.Where(x => x.Category == projectType).Count()),
                     BooksPerPage = pageSize,
                     CurrentPage = pageNum
                 }
