@@ -9,32 +9,39 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace BookstoreProject.Pages
 {
-    public class CartModel : PageModel
+    public class BasketModel : PageModel
     {
-        private iBookstoreProjectRepository repo { get; set; }
-        public CartModel (iBookstoreProjectRepository temp)
+        private iBookstoreProjectRepository repo { get; set; }        
+        public Basket basket { get; set; }
+        public string ReturnUrl { get; set; }
+        public BasketModel (iBookstoreProjectRepository temp, Basket b)
         {
             repo = temp;
+            basket = b;
         }
 
-        public Cart cart { get; set; }
-        public string ReturnUrl { get; set; }
+
         public void OnGet(string returnUrl)
         {
             ReturnUrl = returnUrl ?? "/";
-            cart = HttpContext.Session.GetJson<Cart>("cart") ?? new Cart();
+       
         }
 
         public IActionResult OnPost(int bookId, string returnUrl)
         {
             Book b = repo.Books.FirstOrDefault(x => x.BookId == bookId);
 
-            cart = HttpContext.Session.GetJson<Cart>("cart") ?? new Cart();
-            cart.AddItem(b, 1);
-
-            HttpContext.Session.SetJson("cart", cart);
+            basket.AddItem(b, 1);
 
             return RedirectToPage(new { ReturnUrl = returnUrl });
+        }
+
+        public IActionResult OnPostRemove (int bookId, string returnUrl)
+        {
+            basket.RemoveItem(basket.Items.First(x => x.Book.BookId == bookId).Book);
+
+            return RedirectToPage(new { ReturnUrl = returnUrl });
+
         }
     }
 }

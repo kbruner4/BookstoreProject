@@ -2,6 +2,7 @@ using BookstoreProject.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -33,11 +34,26 @@ namespace BookstoreProject
                 options.UseSqlite(Configuration["ConnectionStrings:BookstoreDBConnection"]);
             });
 
+            services.AddDbContext<AppIdentityDBContext>(options =>
+                options.UseSqlite(Configuration["ConnectionStrings: IdentityConnection"]));
+
+            services.AddIdentity<IdentityUser, IdentityRole>()
+               .AddEntityFrameworkStores<AppIdentityDBContext>();
+
             services.AddScoped<iBookstoreProjectRepository, EFBookstoreProjectRepository>();
+            services.AddScoped<ICheckoutRepository, EFCheckoutRepository>();
 
             services.AddRazorPages();
             services.AddDistributedMemoryCache();
             services.AddSession();
+
+            services.AddScoped<Basket>(x => SessionBasket.GetBasket(x));
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+
+            services.AddServerSideBlazor().AddCircuitOptions(options =>
+            {
+                options.DetailedErrors = true;
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -54,6 +70,9 @@ namespace BookstoreProject
             app.UseSession();
 
             app.UseRouting();
+
+            app.UseAuthentication();
+            app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {
@@ -76,6 +95,9 @@ namespace BookstoreProject
                 endpoints.MapDefaultControllerRoute();
 
                 endpoints.MapRazorPages();
+
+                endpoints.MapBlazorHub();
+                endpoints.MapFallbackToPage("/admin/{*catchall}", "/Admin/Index");
             });
         }
     }
