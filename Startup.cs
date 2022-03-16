@@ -35,7 +35,7 @@ namespace BookstoreProject
             });
 
             services.AddDbContext<AppIdentityDBContext>(options =>
-                options.UseSqlite(Configuration["ConnectionStrings: IdentityConnection"]));
+                options.UseSqlite(Configuration["ConnectionStrings:IdentityConnection"]));
 
             services.AddIdentity<IdentityUser, IdentityRole>()
                .AddEntityFrameworkStores<AppIdentityDBContext>();
@@ -99,6 +99,10 @@ namespace BookstoreProject
                 endpoints.MapBlazorHub();
                 endpoints.MapFallbackToPage("/admin/{*catchall}", "/Admin/Index");
             });
+
+            IdentitySeedData.EnsurePopulated(app);
+
+
         }
     }
 }
